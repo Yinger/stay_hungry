@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id = "app"> 
+        {{ message + " 只支持表達式不支持指令" }}
+        <div v-bind:id="message"></div>
+        <!-- <ul>
+            <li v-for="item in lessonlist">
+                <span v-if="!item.del">{{item.title}}</span>
+                <span v-else style="text-decoration:line-through">{{item.title}}</span>
+                <button v-show="!item.del">削除</button>
+            </li>
+            <todo-item v-for="item in lessonlist" :title="item.title" :del="item.del"></todo-item>
+        </ul> -->
+        <todo-list></todo-list>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        Vue.component('todo-item',{
+            props:{
+                title: String,
+                del : {
+                    type: Boolean,
+                    default: false
+                }
+            },
+            template:`
+            <li>
+                <span v-if="!del">{{title}}</span>
+                <span v-else style="text-decoration:line-through">{{title}}</span>
+                <button v-show="!del" @click="handleClick">削除</button>
+            </li>
+            `,
+            data:function(){
+                return {}
+            },
+            methods:{
+                handleClick(){
+                    console.log('clicked del btn');
+                    this.$emit('delete', this.title);
+                }
+            }
+        });
+
+        Vue.component('todo-list',{
+            template:`
+            <ul>
+                <todo-item @delete="handleDelete" v-for="item in lessonlist" :title="item.title" :del="item.del"></todo-item>
+            </ul>
+            `,
+            data:function(){
+                return{
+                    lessonlist:[
+                    {
+                        title:'lesson 1',
+                        del:false
+                    },
+                    {
+                        title:'lesson 2',
+                        del : true
+                    }]
+                }
+            },
+            methods:{
+                handleDelete(data){
+                    console.log('delete ' , data);
+                }
+            }
+        });
+        var vm = new Vue({
+            el : '#app',
+            data : {
+                message:'Hello World',
+                lessonlist:[
+                    {
+                        title:'lesson 1',
+                        del:false
+                    },
+                    {
+                        title:'lesson 2',
+                        del : true
+                    }
+                ]
+                // item:{
+                //     title:'lesson 1',
+                //     del:false
+                // }
+            }
+        })
+    </script>
+</body>
+</html>
