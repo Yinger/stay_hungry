@@ -257,3 +257,189 @@ db.colToBeDropped.drop()
  show collections // No collections
  show dbs // The db is gone
 ```
+
+# 文档模型设计
+
+## 一. 建立基础文档模型
+
+### 1-1 关系建模: portraits
+
+- 基本原则:
+  - 一对一关系以内嵌为主
+  - 作为子文档形式 或者直接在顶级
+  - 不涉及到数据冗余
+- 例外情况
+  - 如果内嵌后导致文档大小超过 16MB
+
+```json
+name: "Rin",
+company: "ABC",
+title: "CTO",
+portraits: {
+    mimetype: xxx,
+    data: xxxx }
+```
+
+### 1-N 关系建模: Addresses
+
+- 基本原则:
+  - 一对多关系同样以内嵌为主
+  - 用数组来表示一对多
+  - 不涉及到数据冗余
+- 例外情况
+  - 如果内嵌后导致文档大小超过 16MB
+  - 数组长度太大(数万或更多)
+  - 数组长度不确定
+
+```json
+name: "Rin",
+company: "ABC",
+title: "CTO",
+portraits: {
+    mimetype: xxx,
+    data: xxxx
+    },
+addresses: [
+     { type: home, ... },
+     { type: work, ... }
+]
+```
+
+### N-N 关系建模:内嵌数组模式:groups
+
+- 基本原则:
+  - 不需要映射表
+  - 一般用内嵌数组来表示一对多
+  - 通过冗余来实现 N-N
+- 例外情况
+  - 如果内嵌后导致文档大小超过 16MB
+  - 数组长度太大(数万或更多)
+  - 数组长度不确定
+
+```json
+name: "Rin",
+company: "ABC",
+title: "CTO",
+portraits: {
+    mimetype: xxx,
+    data: xxxx
+    },
+addresses: [
+     { type: home, ... },
+     { type: work, ... }
+],
+groups: [
+      {name:  ”Friends” },
+      {name:  ”Surfers” },
+   ]
+```
+
+### 小结
+
+- 90:10 规则: 大部分时候你会使用内嵌来表示 1-1，1-N，N-N
+- 内嵌类似于预先聚合(关联)
+- 内嵌后对读操作通常有优势(减少关联)
+
+## 二. 根据读写工况细化
+
+### 例： 一个分组信息的改动意味着 百万级的 DB 操作
+
+- 解决方案: Group 使用单独的集合
+
+  - 类似于关系型设计
+  - 用 id 或者唯一键关联
+  - 使用 `$lookup` 来提供一次查询多表 的能力(类似关联)
+
+  ```json
+    name: "Rin",
+    company: "ABC",
+    title: "CTO",
+    portraits: {
+        mimetype: xxx,
+        data: xxxx
+        },
+    addresses: [
+        { type: home, ... },
+        { type: work, ... }
+    ],
+    group_ids: [1,2,3...]
+  ```
+
+  ```json
+  group_id:1,
+  group_name:"student"
+  ```
+
+  ```nosql
+  db.contacts.aggregate([
+   {
+        $lookup:
+            {
+                from: "groups",
+                localField: "group_ids",
+                foreignField: "group_id",
+                as: "groups"
+            }
+    }])
+  ```
+
+### 联系人的头像: 引用模式
+
+- 头像使用高保真，大小在 5MB- 10MB
+- 头像一旦上传，一个月不可更换
+- 基础信息查询(不含头像)和 头 像查询的比例为 9 :1
+- 建议: 使用引用方式，把头像数 据放到另外一个集合，可以显著提 升 90% 的查询效率
+
+Contact:
+
+```json
+name: "Rin",
+company: "ABC",
+title: "CTO",
+portraits_id:123,
+addresses: [
+    { type: home, ... },
+    { type: work, ... }
+]
+```
+
+Contact_Portrait:
+
+```json
+_id: 123,
+mimetype: “xxx”,
+data: ”xxxx...”
+```
+
+### 小结：什么时候该使用引用方式
+
+- 内嵌文档太大，数 MB 或者超过 16MB
+- 内嵌文档或数组元素会频繁修改
+- 内嵌数组元素会持续增长并且没有封顶
+
+## MongoDB 引用设计的限制
+
+- MongoDB 对使用引用的集合之间并无主外键检查
+- MongoDB 使用聚合框架的 `$lookup` 来模仿关联查询
+- `$lookup` 只支持 `left outer join`
+- `$lookup` 的关联目标(from)不能是分片表
+
+# 文档模型设计之模式套用
+
+## 分桶设计模式
+
+| 场景                              | 痛点                       | 设计模式的方案及优点                                                                       |
+| --------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------ |
+| 时序数据,物联网,智慧城市,智慧交通 | 数据点采集频繁，数据量太多 | 利用文档内嵌数组，将一个时间段的数据聚合到一个文档里。大量减少文档数量大量减少索引占用空间 |
+
+## 列转行
+
+| 场景                                                           | 痛点                                                      | 设计模式的方案及优点                 |
+| -------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------ |
+| 产品属性 ‘color’, ‘size’, ‘dimensions’, ... 多语言(多国家)属性 | 文档中有很多类似的字段.会用于组合查询搜索，需要建很多索引 | 转化为数组，一个索引解决所有查询问题 |
+
+## 版本字段
+
+## 近似计算
+
+## 预聚合
