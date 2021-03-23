@@ -457,10 +457,10 @@ data: ”xxxx...”
 - majority：写操作需要被复制到大多数节点上才算成功
   发起写操作的程序将阻塞到写操作到达指定的节点数为止
 
-| 默认行为                                            | w: “majority”                                         | w: “all”                                    |
-| --------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------- |
-| 复制集不作任何特别设定                              | 大多数节点确认模式                                    | 全部节点确认模式                            |
-| ![default](/Documents/pic/writeConcern-default.png) | ![majority](/Documents/pic/writeConcern-majority.png) | ![all](/Documents/pic/writeConcern-all.png) |
+| 默认行为                                                  | w: “majority”                                               | w: “all”                                          |
+| --------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------- |
+| 复制集不作任何特别设定                                    | 大多数节点确认模式                                          | 全部节点确认模式                                  |
+| ![default](/Mongo/Documents/pic/writeConcern-default.png) | ![majority](/Mongo/Documents/pic/writeConcern-majority.png) | ![all](/Mongo/Documents/pic/writeConcern-all.png) |
 
 ### `j:true`
 
