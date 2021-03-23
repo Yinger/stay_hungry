@@ -857,7 +857,8 @@ mongo
 > db.createUser({user: "superuser", pwd: "password", roles: [{role: "root", db: "admin"}]} )
 
 安全登录，执行如下命令查看认证机制
-mongo -u superuser -p password --authenticationDatabase admin db.runCommand({getParameter: 1, authenticationMechanisms: 1})
+mongo -u superuser -p password --authenticationDatabase admin
+db.runCommand({getParameter: 1, authenticationMechanisms: 1})
 
 从数据库中查看用户
 db.system.users.find()
