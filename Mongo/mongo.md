@@ -460,8 +460,8 @@ data: ”xxxx...”
   | 参数          | 说明                   | 图                                                          |
   | ------------- | ---------------------- | ----------------------------------------------------------- |
   | 默认行为      | 复制集不作任何特别设定 | ![default](/Mongo/Documents/pic/writeConcern-default.png)   |
-  | w: “majority” | 大多数节点确认模式     | ![majority](/Mongo/Documents/pic/writeConcern-majority.png) |
-  | w: “all       | 全部节点确认模式       | ![all](/Mongo/Documents/pic/writeConcern-all.png)           |
+  | w: "majority" | 大多数节点确认模式     | ![majority](/Mongo/Documents/pic/writeConcern-majority.png) |
+  | w: "all"      | 全部节点确认模式       | ![all](/Mongo/Documents/pic/writeConcern-all.png)           |
 
 ### `j:true`
 
@@ -721,3 +721,151 @@ var cs = db.collection.watch([], {resumeAfter: <_id>})
 - 模型设计先于事务，尽可能用模型设计规避事务；
 - 不要使用过大的事务（尽量控制在 1000 个文档更新以内）；
 - 当必须使用事务时，尽可能让涉及事务的文档分布在同一个分片上，这将有效地提高效率；
+
+# MongoDB 备份与恢复
+
+## MongoDB 的备份
+
+- MongoDB 的备份机制分为
+  - 延迟节点备份
+  - 全量备份 + Oplog 增量
+- 最常见的全量备份方式包括
+
+  - mongodump [幂等性(idempotent)]
+  - 复制数据文件
+  - 文件系统快照
+
+  ## 备份和恢复操作
+
+  ### 备份和恢复工具参数
+
+  几个重要参数
+
+  - mongodump
+    - `--oplog`: 复制 mongodump 开始到结束过程中的所有 oplog 并输出到结果中。 输出文件位于 `dump/oplog.bson`
+  - mongorestore
+    - `--oplogReplay`: 恢复完数据文件后再重放 oplog。默认重放 `dump/oplog.bson => <dump-directory>/local/oplog.rs.bson`。如果 oplog 不在这，则可以
+      - `--oplogFile`: 指定需要重放的 oplog 文件位置
+      - `--oplogLimit`: 重放 oplog 时截止到指定时间点
+
+# MongoDB 安全架构
+
+| 认证方式          | 描述                            | 备注       |
+| ----------------- | ------------------------------- | ---------- |
+| 用户名 + 密码     | 默认认证方式                    |            |
+|                   | SCRAM-SHA-1 哈希算法            |            |
+|                   | 用户信息存于 MongoDB 本地数据库 |            |
+| 证书方式          | X.509 标准                      |            |
+|                   | 服务端需要提供证书文件启动      |            |
+|                   | 客户端需要证书文件连接服务端    |            |
+|                   | 证书由外部或内部 CA 颁发        |            |
+| LDAP 外部认证     | 连接到外部 LDAP 服务器          | 企业版功能 |
+| Kerberos 外部认证 | 连接到外部 Kerberos 服务器      | 企业版功能 |
+
+### MongoDB 内置角色及权限继承关系
+
+![map](/Mongo/Documents/pic/rolemap.png)
+
+### 自定义角色
+
+MongoDB 支持按需自定义角色，适合一些高安全要求的业务场景
+
+```
+db.createRole( {
+  role: 'sampleRole',
+  privileges: [{
+    resource: {
+      db: 'sampledb', collection: 'sample'
+      },
+    actions: ["update"]
+    }],
+  roles: [{
+    role: 'read', db: 'sampledb'
+    }]
+  }
+)
+
+db.createUser( {
+  user: 'sampleUser',
+  pwd: 'password',
+  roles: [{role: 'sampleRole', db: 'admin'}]
+  }
+)
+```
+
+### 传输加密
+
+MongoDB 支持 TLS/SSL 来加密 MongoDB 的所有网络传输(客户端应用和服务器端之间，内部复制集之间)。 TLS/SSL 确保 MongoDB 网络传输仅可由允许的客户端读取
+
+### 落盘加密
+
+流程:
+
+1. 生成 master key，用来加密每一个数据库的 key。
+2. 生成每一个数据库的 key，用来加密各自的数据库。
+3. 基于生成的数据库 key 加密各个数据库中的数据。
+4. Key 管理(只针对 master key，数据库 key 保存 在数据库内部)。
+
+### 字段级加密
+
+- 单独文档字段通过自身密钥加密
+- 数据库只看见密文
+- 优势
+  - 便捷:自动及透明
+  - 任务分开:(简化基于服务的系统步骤，因为没有服务工程师能够看到纯文本)
+  - 合规:监管“被遗忘权”
+  - 快速:最小性能代偿
+
+### 字段级加密查询流程
+
+![encrypt](/Mongo/Documents/pic/encrypt.png)
+
+### 审计
+
+## 启用加密
+
+- 使用 TLS 作为传输协议
+- 使用 4.2 版本的字段级加密对敏感字段加密
+- 如有需要，使用企业版进行落盘加密
+- 如有需要，使用企业版并启用审计日志
+
+### 网络和操作系统加固
+
+- 使用专用用户运行 MongoDB
+  - 不建议在操作系统层使用 root 用户运行 MongoDB
+- 限制网络开放度
+  - 通过防火墙，iptables 规则控制对 MongoDB 的访问
+  - 使用 VPN/VPCs 可以创建一个安全通道，MongoDB 服务不应该直接暴露在互联网上
+  - 使用白名单列表限制允许访问的网段
+  - 使用 bind_ip 绑定一个具体地址
+  - 修改默认监听端口:27017
+- 使用安全配置选项运行 MongoDB
+  - 如果不需要执行 JavaScript 脚本，使用 --noscripting 禁止脚本执行
+  - 如果使用老版本 MongoDB，关闭 http 接口 : net.http.enabled = False net.http.JSONPEnabled = False
+  - 如果使用老版本 MongoDB，关闭 Rest API 接口: net.http.RESTInterfaceEnabled = False
+
+### Demo: 启用认证
+
+```
+方式一: 命令行方式通过 “--auth” 参数
+方式二: 配置文件方式在 security 下添加 “authorization: enabled”
+mongod –-auth –-port 27017 –-dbpath /data/db
+
+启用鉴权后，无密码可以登录，但是只能执行创建用户操作
+mongo
+> use admin
+> db.createUser({user: "superuser", pwd: "password", roles: [{role: "root", db: "admin"}]} )
+
+安全登录，执行如下命令查看认证机制
+mongo -u superuser -p password --authenticationDatabase admin db.runCommand({getParameter: 1, authenticationMechanisms: 1})
+
+从数据库中查看用户
+db.system.users.find()
+```
+
+### 创建应用用户
+
+- 创建只读用户
+  - `db.createUser({user: "reader", pwd: "abc123", roles: [{ role:"read", db: "acme" }]})`
+- 创建读写用户
+  - `db.createUser({user: "writer", pwd: "abc123", roles: [{ role:"readWrite", db: "acme" }]})`
