@@ -1,0 +1,158 @@
+﻿<Window x:Class="Hellow.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Hellow"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <!--<Style x:Key="style_btn_base" TargetType="Button">
+            <Setter Property="FontSize" Value="40" />
+            <Setter Property="Foreground" Value="Blue" />
+        </Style>-->
+
+        <!--<Style x:Key="style_btn_hello" TargetType="Button" BasedOn="{StaticResource style_btn_base}">
+            <Setter Property="Width" Value="200" />
+            <Setter Property="Height" Value="50" />
+            <Style.Triggers>
+                -->
+        <!--<Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="Red"></Setter>
+                    <Setter Property="FontSize" Value="60"></Setter>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="False">
+                    <Setter Property="Foreground" Value="Blue"></Setter>
+                    <Setter Property="FontSize" Value="40"></Setter>
+                </Trigger>-->
+        <!--<MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True" />
+                        <Condition Property="IsFocused" Value="True" />
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Foreground" Value="Red" />
+                    </MultiTrigger.Setters>
+                </MultiTrigger>-->
+        <!--<EventTrigger RoutedEvent="Mouse.MouseEnter">
+                    <EventTrigger.Actions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Duration="0:0:0.2"
+                                                 Storyboard.TargetProperty="FontSize"
+                                                 To="30">
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger.Actions>
+                </EventTrigger>-->
+        <!--
+            </Style.Triggers>
+        </Style>-->
+        <!--<Style x:Key="style_btn_hello2" TargetType="Button" BasedOn="{StaticResource style_btn_base}">
+            <Setter Property="Width" Value="200" />
+            <Setter Property="Height" Value="100" />
+        </Style>-->
+        <!--<ControlTemplate x:Key="tmp_btn" TargetType="Button">
+            <Border Background="Red" CornerRadius="5">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="{TemplateBinding HorizontalAlignment}">
+                    <TextBlock Text="♥" VerticalAlignment="Center" />
+                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                  VerticalAlignment="{TemplateBinding VerticalAlignment}" />
+                </StackPanel>
+            </Border>
+        </ControlTemplate>-->
+        <DataTemplate x:Key="comTemplate">
+            <StackPanel Orientation="Horizontal" Margin="5,0">
+                <Border Width="10" Height="10" Background="{Binding Code}" />
+                <TextBlock Text="{Binding Code}" Margin="5,0" />
+                <Button Width="10" Height="10" Background="Red"></Button>
+            </StackPanel>
+        </DataTemplate>
+        <TextBox x:Key="txt">Hello</TextBox>
+    </Window.Resources>
+    <Grid>
+        <!--<StackPanel Orientation="Horizontal">
+            <Button Width="100" Height="40"></Button>
+            <Button Width="100" Height="40"></Button>
+            <Button Width="100" Height="40"></Button>
+        </StackPanel>-->
+        <!--<WrapPanel>
+            <Button Width="200" Height="40"></Button>
+            <Button Width="200" Height="40"></Button>
+            <Button Width="200" Height="40"></Button>
+            <Button Width="200" Height="40"></Button>
+            <Button Width="200" Height="40"></Button>
+        </WrapPanel>-->
+        <!--<DockPanel LastChildFill="False">
+            <Button Width="100" Height="40" DockPanel.Dock="Top"></Button>
+            <Button Width="100" Height="40" DockPanel.Dock="Bottom"></Button>
+            <Button Width="100" Height="40" DockPanel.Dock="Left"></Button>
+            <Button Width="100" Height="40" DockPanel.Dock="Right"></Button>
+        </DockPanel>-->
+        <!--<Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Border Background="Red"></Border>
+        <Border Background="Yellow" Grid.Column="1"></Border>
+        <Border Background="Green" Grid.Row="1"></Border>
+        <Border Background="Blue" Grid.Row="1" Grid.Column="1"></Border>-->
+        <!--<StackPanel>
+            <Button Style="{StaticResource style_btn_hello}" Content="Hello"></Button>
+            <Button Style="{StaticResource style_btn_hello}" Content="Hello"></Button>
+            <Button Style="{StaticResource style_btn_hello}" Content="Hello"></Button>
+        </StackPanel>-->
+        <!--<StackPanel>
+            <Button Content="Hello" Template="{StaticResource tmp_btn}" Width="200" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center"></Button>
+        </StackPanel>-->
+        <StackPanel>
+            <!--<Slider Width="200" ValueChanged="Slider_ValueChanged" ></Slider>
+            <TextBox Name="text"></TextBox>-->
+            <Slider x:Name="sd" Width="200"></Slider>
+            <TextBox Text="{Binding ElementName=sd,Path=Value}" />
+            <TextBox Text="{Binding Source={StaticResource txt},Path=Text}" FontSize="20"></TextBox>
+            <TextBox x:Name="txt" FontSize="30" Text="{Binding Name, FallbackValue='not found'}"></TextBox>
+            <TextBox FontSize="35" Text="{Binding Name}"></TextBox>
+            <ItemsControl Name="ic">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <!--<Button />-->
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Width="50" Height="50" Content="{Binding Code}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <ComboBox Name="cob" Width="120" Height="30" ItemTemplate="{StaticResource comTemplate}" />
+                <ListBox Name="lib" Width="120" Height="100" Margin="5,0"  ItemTemplate="{StaticResource comTemplate}" />
+            </StackPanel>
+            <DataGrid Name="gd" AutoGenerateColumns="False" CanUserSortColumns="True"  CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding UserName}" Width="100" Header="学生姓名" />
+                    <DataGridTextColumn Binding="{Binding ClassName}" Width="100" Header="班级名称" />
+                    <DataGridTextColumn Binding="{Binding Address}" Width="200" Header="地址" />
+                    <DataGridTemplateColumn Header="操作" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                                    <Button Content="编辑" />
+                                    <Button Margin="8 0 0 0" Content="删除" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+    </Grid>
+</Window>
