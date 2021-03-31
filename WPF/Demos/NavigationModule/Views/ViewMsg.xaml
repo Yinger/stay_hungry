@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="NavigationModule.Views.ViewMsg"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:NavigationModule.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="200" d:DesignWidth="300">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <TextBlock VerticalAlignment="Center"
+                   FontSize="25"
+                   Text="Edit" />
+        <TextBox Grid.Row="1" HorizontalAlignment="Center" Height="50" Width="200" FontSize="20" Text="{Binding Title}" />
+        <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal">
+            <Button Content="OK" Height="30" Width="80" Margin="10" Command="{Binding SaveCommand}" />
+            <Button Content="Cancel" Height="30" Width="80" Margin="10" Command="{Binding CancelCommand}" />
+        </StackPanel>
+    </Grid>
+</UserControl>
