@@ -19,3 +19,18 @@ mkdir /nginx/install
 make
 make install
 ```
+
+# openresty
+
+```bash
+dnf -y install wget
+wget 'https://openresty.org/package/centos/openresty.repo'
+mv openresty.repo /etc/yum.repos.d/
+dnf check-update
+dnf -y install openresty
+which openresty # /usr/bin/openresty
+file `which openresty` # /usr/bin/openresty: symbolic link to /usr/local/openresty/nginx/sbin/nginx
+openresty -V
+systemctl start openresty
+ps aux|grep nginx
+```
