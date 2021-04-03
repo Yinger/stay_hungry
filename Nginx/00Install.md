@@ -34,3 +34,11 @@ openresty -V
 systemctl start openresty
 ps aux|grep nginx
 ```
+
+# goaccess
+
+https://goaccess.io/
+
+```
+goaccess host.access.log -o ../html/report.html --real-time-html --time-format='%H:%M:S' --date-format='%b/%d/%Y' --log-format=COMBINED
+```
