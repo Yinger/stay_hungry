@@ -35,6 +35,13 @@ systemctl start openresty
 ps aux|grep nginx
 ```
 
+```
+gmake[2]: Leaving directory '/install/openresty-1.19.3.1/build/nginx-1.19.3'
+gmake[1]: Leaving directory '/install/openresty-1.19.3.1/build/nginx-1.19.3'
+mkdir -p /usr/local/openresty/site/lualib /usr/local/openresty/site/pod /usr/local/openresty/site/manifest
+ln -sf /usr/local/openresty/nginx/sbin/nginx /usr/local/openresty/bin/openresty
+```
+
 # goaccess
 
 https://goaccess.io/
