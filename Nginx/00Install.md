@@ -40,5 +40,5 @@ ps aux|grep nginx
 https://goaccess.io/
 
 ```
-goaccess host.access.log -o ../html/report.html --real-time-html --time-format='%H:%M:S' --date-format='%b/%d/%Y' --log-format=COMBINED
+goaccess host.access.log -o ../html/report.html --real-time-html --time-format='%H:%M:S' --date-format='%b/%d/%Y' --log-format=COMBINED --daemonize
 ```
