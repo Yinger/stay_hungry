@@ -37,6 +37,32 @@ Linux Cgroups 的全称是 Linux Control Group。它最主要的作用，就是�
 
 https://docs.docker.com/engine/install/centos/
 
+- Docker的旧版本被称为docker或docker-engine，若以前安装过，卸载命令如下
+```
+yum remove docker docker-common container-selinux docker-selinux docker-engine
+```
+
+- 安装yum-utils device-mapper-persistent-data lvm2软件包
+```
+yum install -y yum-utils device-mapper-persistent-data lvm2
+```
+
+- 配置稳定版本库
+```
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+```
+
+- 查看所有仓库中所有docker版本
+```
+yum list docker-ce --showduplicates | sort -r
+```
+
+- 安装docker
+```shell
+yum install docker-ce-18.03.1.ce-1.el7.centos # 安装指定版本
+yum install docker-ce # 最新版本
+```
+
 ## 卸载
 
 - 查询 docker 安装过的包
